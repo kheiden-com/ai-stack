@@ -1,0 +1,116 @@
+services:
+  n8n:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5678:5678"
+    env_file:
+      - .env
+    volumes:
+      - "n8n_data:/home/node/.n8n"
+      - "NAS_BusinessData:/data/business_data"
+
+  qdrant:
+    image: qdrant/qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - "qdrant_storage:/qdrant/storage:z"
+
+  openwebui:
+    image: home:webui
+    env_file:
+      - .env
+    volumes:
+      - "open_webui:/app/backend/data"
+    ports:
+      - "3000:8080"
+
+  ollama:
+    image: ollama/latest
+    env_file:
+      - .env
+    volumes:
+      - "ollama:/root/.ollama"
+    ports:
+      - 11434:11434
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+  
+  photoprism:
+    image: photoprism/photoprism:latest
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    ports:
+      - "2342:2342" # HTTP port (host:container)
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.latest.loadbalancer.server.port=2342"
+      - "traefik.http.routers.latest.entrypoints=websecure"
+      - "traefik.http.routers.latest.rule=Host(`latest.localssl.dev`)"
+      - "traefik.http.routers.latest.tls.domains[0].main=localssl.dev"
+      - "traefik.http.routers.latest.tls.domains[0].sans=*.localssl.dev"
+      - "traefik.http.routers.latest.tls=true"
+    env_file:
+      - .env
+    working_dir: "/photoprism"
+    volumes:
+      - "photoprism:/photoprism/storage"
+      - "NAS_BusinessData:/photoprism/originals/data_source"
+      # External data source
+      # - "data_source:/photoprism/originals/data_source"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: "nvidia"
+              capabilities: [gpu]
+              count: 1
+
+  mariadb-11-4:
+    image: mariadb:11.4
+    security_opt: # see https://github.com/MariaDB/mariadb-docker/issues/434#issuecomment-1136151239
+      - seccomp:unconfined
+      - apparmor:unconfined
+    command: --port=4001 --innodb-strict-mode=1 --innodb-buffer-pool-size=256M --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
+    ports:
+      - "4001:4001"
+    volumes:
+      - type: bind
+        source: ./mariadb-init.sql
+        target: /docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - .env
+
+volumes:
+  n8n_data:
+    name: n8n_data
+    external: true
+  qdrant_storage:
+    name: qdrant_storage
+    external: true
+  open_webui:
+    name: open_webui
+    external: true
+  ollama:
+    name: ollama
+    external: true
+  photoprism:
+    name: photoprism
+    external: true
+  NAS_BusinessData:
+    name: NAS_BusinessData
+    driver_opts:
+      type: cifs
+      o: "username=${NAS_USER:-dockeruser},password=${NAS_PASSWORD:-naspw},file_mode=0777,dir_mode=0777"
+      device: "//192.168.50.2/Business Data"
