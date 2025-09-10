@@ -51,6 +51,7 @@ services:
         echo 'PARAMETER num_ctx 8192' >> Modelfile
         ollama create snowflake-arctic-embed2:latest-8192 -f Modelfile
         
+        ollama pull ${DEFAULT_MODEL}
         echo "Initialization complete. Keeping container running."
         wait
     env_file:
@@ -129,7 +130,7 @@ volumes:
     name: openwebui_storage
     external: true
   ollama:
-    name: qdrant_storage
+    name: ollama_storage
     external: true
   photoprism:
     name: photoprism_storage
