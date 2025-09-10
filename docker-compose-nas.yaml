@@ -31,7 +31,9 @@ services:
       - "3000:8080"
 
   ollama:
-    image: ollama/latest
+    build:
+      context: .
+      dockerfile: /ollama/Dockerfile
     env_file:
       - .env
     volumes:
@@ -65,10 +67,8 @@ services:
       - .env
     working_dir: "/photoprism"
     volumes:
-      - "photoprism:/photoprism/storage"
-      - "NAS_BusinessData:/photoprism/originals/data_source"
-      # External data source
-      # - "data_source:/photoprism/originals/data_source"
+      - "D:\\photoprism_business/storage:/photoprism/storage"
+      - "NAS_BusinessData:/photoprism/originals/business_data"
     deploy:
       resources:
         reservations:
@@ -106,7 +106,7 @@ volumes:
     name: qdrant_storage
     external: true
   open_webui:
-    name: open_webui
+    name: open-webui
     external: true
   ollama:
     name: ollama
