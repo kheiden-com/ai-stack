@@ -22,6 +22,9 @@ Requires availability of the following ports:
 3000
 ```
 
+```
+docker-compose -f docker-compose-nas.yaml up
+```
 
 
 ## Future Updates
