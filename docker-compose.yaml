@@ -30,7 +30,29 @@ services:
       - "3000:8080"
 
   ollama:
-    image: ollama/ollama:latest
+    build:
+      context: .
+      dockerfile: /ollama/Dockerfile
+    entrypoint: sh
+    command:
+      - -c
+      - |
+        set -e
+        ollama serve &
+        
+        echo "Waiting for Ollama server to start..."
+        until curl -s -f http://localhost:11434/ > /dev/null; do
+          sleep 1
+        done
+        echo "Ollama server started."
+        
+        ollama pull snowflake-arctic-embed2:latest
+        ollama show --modelfile snowflake-arctic-embed2:latest > Modelfile
+        echo 'PARAMETER num_ctx 8192' >> Modelfile
+        ollama create snowflake-arctic-embed2:latest-8192 -f Modelfile
+        
+        echo "Initialization complete. Keeping container running."
+        wait
     env_file:
       - .env
     volumes:
@@ -90,19 +112,25 @@ services:
     env_file:
       - .env
 
+# docker volume create n8n_storage
+# docker volume create qdrant_storage
+# docker volume create openwebui_storage
+# docker volume create qdrant_storage
+# docker volume create photoprism_storage
+
 volumes:
   n8n_data:
-    name: n8n_data
+    name: n8n_storage
     external: true
   qdrant_storage:
     name: qdrant_storage
     external: true
   open_webui:
-    name: open_webui
+    name: openwebui_storage
     external: true
   ollama:
-    name: ollama
+    name: qdrant_storage
     external: true
   photoprism:
-    name: photoprism
+    name: photoprism_storage
     external: true
