@@ -92,6 +92,12 @@ services:
     env_file:
       - .env
 
+# docker volume create n8n_storage
+# docker volume create qdrant_storage
+# docker volume create openwebui_storage
+# docker volume create qdrant_storage
+# docker volume create photoprism_storage
+
 volumes:
   n8n_data:
     name: n8n_data
