@@ -3,11 +3,12 @@ FROM n8nio/n8n:1.110.1
 
 USER root
 
-# Install curl
+# Install packages for the Execute node
 RUN apk --no-cache add curl
-
-# Install ffmpeg
 RUN apk --no-cache add ffmpeg
+RUN apk --no-cache add rsync
+RUN apk --no-cache add sshpass
+
 
 # Switch back to the n8n user for security
 USER node
