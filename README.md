@@ -11,6 +11,9 @@ This includes:
 ## Getting Started
 ```
 git clone ...
+cd ai-stack
+git clone https://github.com/open-webui/open-webui
+docker build . -t home:webui
 docker-compose up -d
 ```
 
