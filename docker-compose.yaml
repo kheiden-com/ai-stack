@@ -21,7 +21,7 @@ services:
       - "qdrant_storage:/qdrant/storage:z"
 
   openwebui:
-    image: home:webui
+    image: kheidencom/openwebui:latest
     env_file:
       - .env
     volumes:
@@ -60,13 +60,6 @@ services:
       - "ollama:/root/.ollama"
     ports:
       - 11434:11434
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
   
   photoprism:
     image: photoprism/photoprism:latest
@@ -90,13 +83,6 @@ services:
       - "photoprism:/photoprism/storage"
       # External data source
       # - "data_source:/photoprism/originals/data_source"
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: "nvidia"
-              capabilities: [gpu]
-              count: 1
 
   mariadb-11-4:
     image: mariadb:11.4
@@ -113,25 +99,14 @@ services:
     env_file:
       - .env
 
-# docker volume create n8n_storage
-# docker volume create qdrant_storage
-# docker volume create openwebui_storage
-# docker volume create qdrant_storage
-# docker volume create photoprism_storage
-
 volumes:
   n8n_data:
     name: n8n_storage
-    external: true
   qdrant_storage:
     name: qdrant_storage
-    external: true
   open_webui:
     name: openwebui_storage
-    external: true
   ollama:
     name: ollama_storage
-    external: true
   photoprism:
     name: photoprism_storage
-    external: true
