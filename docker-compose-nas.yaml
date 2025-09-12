@@ -22,7 +22,7 @@ services:
       - "qdrant_storage:/qdrant/storage:z"
 
   openwebui:
-    image: home:webui
+    image: kheidencom/openwebui:latest
     env_file:
       - .env
     volumes:
@@ -88,7 +88,7 @@ services:
       - "4001:4001"
     volumes:
       - type: bind
-        source: ./mariadb-init.sql
+        source: /mariadb//mariadb-init.sql
         target: /docker-entrypoint-initdb.d/init.sql
     env_file:
       - .env
