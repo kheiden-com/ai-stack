@@ -1,0 +1,126 @@
+services:
+  n8n:
+    build:
+      context: .
+      dockerfile: /n8n/Dockerfile
+    restart: always
+    ports:
+      - "5678:5678"
+    env_file:
+      - .env
+    volumes:
+      - "n8n_data:/home/node/.n8n"
+
+  qdrant:
+    image: qdrant/qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - "qdrant_storage:/qdrant/storage:z"
+
+  openwebui:
+    image: kheidencom/openwebui:latest
+    env_file:
+      - .env
+    volumes:
+      - "open_webui:/app/backend/data"
+    ports:
+      - "3000:8080"
+
+  ollama:
+    build:
+      context: .
+      dockerfile: /ollama/Dockerfile
+    entrypoint: sh
+    command:
+      - -c
+      - |
+        set -e
+        ollama serve &
+        
+        echo "Waiting for Ollama server to start..."
+        until curl -s -f http://localhost:11434/ > /dev/null; do
+          sleep 1
+        done
+        echo "Ollama server started."
+        
+        ollama pull snowflake-arctic-embed2:latest
+        ollama show --modelfile snowflake-arctic-embed2:latest > Modelfile
+        echo 'PARAMETER num_ctx 8192' >> Modelfile
+        ollama create snowflake-arctic-embed2:latest-8192 -f Modelfile
+        
+        ollama pull ${DEFAULT_MODEL}
+        echo "Initialization complete. Keeping container running."
+        wait
+    env_file:
+      - .env
+    volumes:
+      - "ollama:/root/.ollama"
+    ports:
+      - 11434:11434
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+  
+  photoprism:
+    image: photoprism/photoprism:latest
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    ports:
+      - "2342:2342" # HTTP port (host:container)
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.latest.loadbalancer.server.port=2342"
+      - "traefik.http.routers.latest.entrypoints=websecure"
+      - "traefik.http.routers.latest.rule=Host(`latest.localssl.dev`)"
+      - "traefik.http.routers.latest.tls.domains[0].main=localssl.dev"
+      - "traefik.http.routers.latest.tls.domains[0].sans=*.localssl.dev"
+      - "traefik.http.routers.latest.tls=true"
+    env_file:
+      - .env
+    working_dir: "/photoprism"
+    volumes:
+      - "photoprism:/photoprism/storage"
+      # External data source
+      # - "data_source:/photoprism/originals/data_source"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: "nvidia"
+              capabilities: [gpu]
+              count: 1
+
+  mariadb-11-4:
+    image: mariadb:11.4
+    security_opt: # see https://github.com/MariaDB/mariadb-docker/issues/434#issuecomment-1136151239
+      - seccomp:unconfined
+      - apparmor:unconfined
+    command: --port=4001 --innodb-strict-mode=1 --innodb-buffer-pool-size=256M --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
+    ports:
+      - "4001:4001"
+    volumes:
+      - type: bind
+        source: /mariadb/mariadb-init.sql
+        target: /docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - .env
+
+volumes:
+  n8n_data:
+    name: n8n_storage
+  qdrant_storage:
+    name: qdrant_storage
+  open_webui:
+    name: openwebui_storage
+  ollama:
+    name: ollama_storage
+  photoprism:
+    name: photoprism_storage
