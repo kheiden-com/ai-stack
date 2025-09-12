@@ -14,6 +14,19 @@ git clone ...
 cd ai-stack
 git clone https://github.com/open-webui/open-webui
 docker build . -t home:webui
+```
+To create the external volumes, use the below commands.
+
+```
+docker volume create n8n_data
+docker volume create qdrant_storage
+docker volume create open-webui
+docker volume create ollama
+docker volume create photoprism
+```
+
+Start the stack
+```
 docker-compose up -d
 ```
 

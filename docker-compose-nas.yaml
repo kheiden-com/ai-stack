@@ -54,7 +54,8 @@ services:
       - seccomp:unconfined
       - apparmor:unconfined
     ports:
-      - "2342:2342" # HTTP port (host:container)
+      - "2342:2342" # UI Port (host:container)
+      - "5000:5000" # API Port
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.latest.loadbalancer.server.port=2342"
@@ -92,11 +93,17 @@ services:
     env_file:
       - .env
 
-# docker volume create n8n_storage
-# docker volume create qdrant_storage
-# docker volume create openwebui_storage
-# docker volume create qdrant_storage
-# docker volume create photoprism_storage
+  toolserver:
+    restart: always
+    env_file:
+      - .env
+    build:
+      context: /toolserver/.
+    ports:
+      - 8000:8000
+    volumes:
+      - /toolserver/main:/app/main
+
 
 volumes:
   n8n_data:
