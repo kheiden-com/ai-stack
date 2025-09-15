@@ -10,7 +10,6 @@
 <!-- Logo: Replace with your own logo -->
 <p align="center">
   <img src="https://raw.githubusercontent.com/kheiden-com/ai-stack/main/static/logo.jpg" alt="Project Logo" width="150">
-  🤖
 </p>
 
 A powerful, self-hosted, and customizable AI stack that runs locally on your machine. This project bundles a suite of best-in-class open-source tools to provide a complete environment for local AI development, experimentation, and workflow automation.
