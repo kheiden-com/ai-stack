@@ -1,0 +1,8 @@
+# Add the Ollama models you want to be available in this stack.
+# List one model per line.
+#
+# For a list of available models, see: https://ollama.com/library
+#
+# Example models:
+llama3:8b
+orca-mini

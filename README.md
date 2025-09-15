@@ -1,120 +1,156 @@
-# Local AI Stack
+# 🤖 Local AI Stack
 
-This includes:
-- Inference runtime (ollama)
-- Vector Database (qdrant)
-- Application Frontend (OpenWebUi)
-- Workflow Automation (n8n)
-- Multimedia Management (photoprism)
+<!-- Badges: Replace with your own -->
+<p align="center">
+  <img src="https://img.shields.io/github/stars/kheiden-com/ai-stack?style=social" alt="GitHub Stars">
+  <img src="https://img.shields.io/github/license/kheiden-com/ai-stack" alt="License">
+  <img src="https://img.shields.io/github/last-commit/kheiden-com/ai-stack" alt="Last Commit">
+</p>
 
+<!-- Logo: Replace with your own logo -->
+<p align="center">
+  <img src="https://raw.githubusercontent.com/kheiden-com/ai-stack/static/logo.jpg" alt="Project Logo" width="150">
+  🤖
+</p>
 
-## Getting Started
-```
-git clone ...
-cd ai-stack
-git clone https://github.com/open-webui/open-webui
-docker build . -t home:webui
-```
-To create the external volumes, use the below commands.
+A powerful, self-hosted, and customizable AI stack that runs locally on your machine. This project bundles a suite of best-in-class open-source tools to provide a complete environment for local AI development, experimentation, and workflow automation.
 
-```
-docker volume create n8n_data
-docker volume create qdrant_storage
-docker volume create open-webui
-docker volume create ollama
-docker volume create photoprism
+## ✨ Features
+
+*   **One-Command Setup**: Get up and running in minutes with a simple setup script for both Linux/macOS and Windows.
+*   **Local LLM Inference**: Powered by **Ollama**, allowing you to run powerful open-source language models like Llama 3, Mistral, and more, completely offline.
+*   **Flexible Model Management**: Easily customize which LLMs are downloaded by adding them to a simple `models.txt` file.
+*   **Rich Web Interface**: Interact with your local models through **OpenWebUI**, a feature-rich and user-friendly chat interface.
+*   **Workflow Automation**: Includes **n8n** with a pre-configured "Text Summarization" workflow to demonstrate how to integrate AI into your automated tasks.
+*   **Vector Database**: Comes with **Qdrant** for all your Retrieval-Augmented Generation (RAG) and semantic search needs.
+*   **Photo Management**: Includes **PhotoPrism**, a comprehensive tool for managing, organizing, and sharing your photo library.
+
+## 🏗️ Architecture
+
+The stack is designed to be modular, with services communicating with each other over the internal Docker network.
+
+```mermaid
+graph TD
+    subgraph "User Interaction"
+        User("👤 User")
+    end
+
+    subgraph "AI Stack Frontend"
+        OpenWebUI("[🌐 OpenWebUI<br>Frontend for LLMs]")
+    end
+
+    subgraph "Automation Engine"
+        n8n("[⚙️ n8n<br>Workflow Automation]")
+    end
+
+    subgraph "Core AI Services"
+        Ollama("🧠 Ollama<br>Inference Engine")
+        Qdrant("📚 Qdrant<br>Vector Database")
+    end
+
+    subgraph "Photo Management"
+        PhotoPrism("[🖼️ PhotoPrism<br>Photo Management]")
+        MariaDB("🗄️ MariaDB<br>Database")
+    end
+
+    %% Connections
+    User --> OpenWebUI
+    User --> n8n
+    User --> PhotoPrism
+
+    OpenWebUI --> Ollama
+    OpenWebUI --> Qdrant
+
+    n8n --> Ollama
+
+    PhotoPrism --> MariaDB
 ```
 
-Start the stack
-```
-docker-compose up -d
-```
+## 🚀 Getting Started
 
-Requires availability of the following ports:
-```
-3000
-```
+Getting the stack running is as simple as running one command.
 
-```
-docker-compose -f docker-compose-nas.yaml up
-```
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/your-repo.git
+    cd your-repo
+    ```
 
+2.  **Run the setup script:**
 
-## Images
+    *   For **Linux or macOS**:
+        ```bash
+        ./setup.sh
+        ```
+    *   For **Windows** (in a Powershell terminal):
+        ```powershell
+        ./setup.ps1
+        ```
+
+That's it! The script will check for prerequisites, prepare the necessary configuration files, and launch all the services. It may take a while on the first run as Docker images are downloaded and built.
+
+## 📚 Stack Components
 
 This stack uses a combination of pre-built images from Docker Hub and custom-built images.
 
--   **n8n**: A custom-built image for workflow automation. The Dockerfile is located in the `n8n/` directory.
--   **qdrant**: The official `qdrant/qdrant` image for the vector database.
--   **OpenWebUi**: The `kheidencom/openwebui:latest` image is used as the application frontend. The `Getting Started` section mentions building an image from source, which is an alternative if you want to customize the OpenWebUi.
--   **ollama**: A custom-built image for the inference runtime. The Dockerfile is in the `ollama/` directory. This image is configured to download some default models on startup.
--   **photoprism**: The official `photoprism/photoprism:latest` image for multimedia management.
--   **mariadb**: The official `mariadb:11.4` image, used as the database for PhotoPrism.
+*   **OpenWebUI**: `kheidencom/openwebui:latest` - The primary user interface for chatting with LLMs.
+*   **Ollama**: A custom image that dynamically pulls models listed in `ollama/models.txt`.
+*   **n8n**: A custom image that comes pre-loaded with example workflows.
+*   **Qdrant**: `qdrant/qdrant` - The official image for the vector database.
+*   **PhotoPrism**: `photoprism/photoprism:latest` - The official image for photo management.
+*   **MariaDB**: `mariadb:11.4` - The database used by PhotoPrism.
 
-## Using Existing Data
+## 🔧 Advanced Usage
 
-If you have existing data from another setup, you can copy it to the volumes used by this stack. This data can be in another Docker volume or inside a Docker image.
+### Customizing Ollama Models
 
-### From a Docker Volume
+You can control which models Ollama downloads by editing the `ollama/models.txt` file. Add one model name per line (e.g., `mistral:latest`). The models will be pulled automatically when the stack starts.
 
-If your data is in another Docker volume (e.g., from a previous installation), you can copy it.
+### Managing Your Data
 
-First, identify the name of the source volume. You can list your existing volumes with `docker volume ls`.
+If you have existing data from another setup, you can copy it into the volumes used by this stack.
 
-Let's say your old ollama volume is named `ollama_data_old` and you want to copy it to the `ollama_storage` volume used in this stack. You can use the following command:
+#### From a Docker Volume
 
+To copy data from an existing Docker volume (e.g., `old_ollama_data`) to this stack's volume (`ollama_storage`), you can run:
 ```bash
-docker run --rm \
-  -v ollama_data_old:/from \
-  -v ollama_storage:/to \
-  alpine sh -c "cd /from ; cp -av . /to"
+docker run --rm -v old_ollama_data:/from -v ollama_storage:/to alpine sh -c "cd /from ; cp -av . /to"
 ```
 
-This command starts a temporary `alpine` container, mounts the old volume to `/from` and the new volume to `/to`, and then copies all the data.
+#### From a Docker Image
 
-### From a Docker Image
-
-If you have an existing Docker image that contains data you want to use (e.g., an `ollama` image with pre-downloaded models), you can copy the data from the image into a volume used by this stack.
-
-For example, to copy models from an image named `my-ollama:latest` to the `ollama_storage` volume:
-
+To copy data from an existing Docker image (e.g., `my-ollama:latest`) into a volume used by this stack, you can run:
 ```bash
-docker run --rm \
-  --entrypoint /bin/sh \
-  -v ollama_storage:/to \
-  my-ollama:latest -c "cp -av /root/.ollama/. /to/"
+docker run --rm --entrypoint /bin/sh -v ollama_storage:/to my-ollama:latest -c "cp -av /root/.ollama/. /to/"
 ```
 
-This command starts a temporary container from your existing image (`my-ollama:latest`), mounts the stack's `ollama_storage` volume to the `/to` directory, and then copies the data from `/root/.ollama` (the default location in ollama images) to the volume. You may need to adjust the source path (`/root/.ollama/`) depending on where the data is stored in your image.
+#### Copying Data Between Images
 
-### Copying Data Between Images
+To create a new image by merging data from two existing images, you can use the provided scripts.
 
-If you need to create a new Docker image by copying files from a source image to a destination image, you can use the `copy_image_data.sh` script included in this repository. This might be useful if you want to create a custom `ollama` image that includes models from another image.
+*   **Linux/macOS:**
+    ```bash
+    ./copy_image_data.sh <source_image> <path_in_source> <dest_image> <path_in_dest> <new_image_tag>
+    ```
+*   **Windows (Powershell):**
+    ```powershell
+    ./copy_image_data.ps1 -SourceImage <source_image> -PathInSource <path_in_source> -DestImage <dest_image> -PathInDest <path_in_dest> -NewImageTag <new_image_tag>
+    ```
 
-The script uses a `docker run`-based workflow to:
-1.  Start a temporary container from a source image.
-2.  Copy the specified directory from it to the local filesystem.
-3.  Start a temporary container from a destination image.
-4.  Copy the data from the local filesystem into it.
-5.  Commit the result as a new image with a new tag.
+## ⁉️ Troubleshooting
 
-**Usage:**
+*   **Permission Errors on `./setup.sh`**: If you get a "Permission denied" error, run `chmod +x setup.sh` to make the script executable.
+*   **Powershell Script Execution Policy**: If `./setup.ps1` fails to run on Windows, you may need to adjust your execution policy. You can set it for the current process by running: `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process`.
+*   **Service Failures**: If a service fails to start, check the logs with `docker-compose logs <service_name>` (e.g., `docker-compose logs ollama`).
 
-```bash
-./copy_image_data.sh <source_image> <path_in_source> <dest_image> <path_in_dest> <new_image_tag>
-```
+## ❤️ Contributing
 
-**Example:**
+Contributions are welcome! If you have ideas for new features, improvements, or bug fixes, please feel free to:
+1.  Open an issue to discuss your idea.
+2.  Fork the repository and create a pull request.
 
-To copy models from an image named `my-ollama:latest` into the `ollama` image built by this stack (`ai-stack-ollama:latest`), creating a new image tagged `ollama:with-my-models`:
+Please make sure your code is well-documented and follows the existing style.
 
-```bash
-./copy_image_data.sh my-ollama:latest /root/.ollama/models ai-stack-ollama:latest /root/.ollama/models ollama:with-my-models
-```
+## 🔮 Future Updates
 
-You would then need to update the `docker-compose.yaml` file to use your new `ollama:with-my-models` image in the `ollama` service.
-
-## Future Updates
-
-TODO: Acquire X free ports on host machine, create port variables for each, configure each container with environment variables which reference these available ports.
-
+*   TODO: Acquire X free ports on host machine, create port variables for each, configure each container with environment variables which reference these available ports.
