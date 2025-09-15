@@ -73,7 +73,7 @@ Getting the stack running is as simple as running one command.
 1.  **Clone the repository:**
     ```bash
     git clone https://github.com/kheiden-com/ai-stack.git
-    cd your-repo
+    cd ai-stack
     ```
 
 2.  **Run the setup script:**
@@ -86,6 +86,8 @@ Getting the stack running is as simple as running one command.
         ```powershell
         ./setup.ps1
         ```
+
+Note: You may want to update the environment variables in the .env file prior to creating the stack. If you do not have a .env file in your directory before running the setup script, one will be created from the .env.template file.
 
 That's it! The script will check for prerequisites, prepare the necessary configuration files, and launch all the services. It may take a while on the first run as Docker images are downloaded and built.
 
