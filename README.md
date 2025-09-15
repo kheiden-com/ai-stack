@@ -17,6 +17,7 @@ A powerful, self-hosted, and customizable AI stack that runs locally on your mac
 
 ## ✨ Features
 
+*   **Popular Open Source AI Software**: OpenWebUI, n8n, Photoprism, Ollama, Qdrant, and MariaDB.
 *   **One-Command Setup**: Get up and running in minutes with a simple setup script for both Linux/macOS and Windows.
 *   **Local LLM Inference**: Powered by **Ollama**, allowing you to run powerful open-source language models like Llama 3, Mistral, and more, completely offline.
 *   **Flexible Model Management**: Easily customize which LLMs are downloaded by adding them to a simple `models.txt` file.
