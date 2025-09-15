@@ -72,7 +72,7 @@ Getting the stack running is as simple as running one command.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/your-repo.git
+    git clone https://github.com/kheiden-com/ai-stack.git
     cd your-repo
     ```
 
@@ -142,6 +142,7 @@ To create a new image by merging data from two existing images, you can use the 
 *   **Permission Errors on `./setup.sh`**: If you get a "Permission denied" error, run `chmod +x setup.sh` to make the script executable.
 *   **Powershell Script Execution Policy**: If `./setup.ps1` fails to run on Windows, you may need to adjust your execution policy. You can set it for the current process by running: `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process`.
 *   **Service Failures**: If a service fails to start, check the logs with `docker-compose logs <service_name>` (e.g., `docker-compose logs ollama`).
+*   **bind: only one usage of each socket address (protocol/network address/port) is normall permitted.**: If you encounter this error, please make sure that you are not already running the service on the port through another means. For example, if running n8n locally via `npx n8n`, make sure to exit the thread before re-running the ai-stack `setup` script. 
 
 ## ❤️ Contributing
 
