@@ -3,6 +3,7 @@ import requests
 from datetime import datetime
 from pydantic import BaseModel, Field
 
+PHOTOPRISM_API_KEY = os.environ.get("PHOTOPRISM_API_KEY")
 
 class Tools:
     class Valves(BaseModel):
@@ -39,7 +40,7 @@ class Tools:
 
     async def get_related_documents(self, query, __event_emitter__=None):
         headers = {
-            "Authorization ": "Bearer mwLut0-MolB3Y-PEgVH4-ObN6DE"
+            "Authorization ": f"Bearer {PHOTOPRISM_API_KEY}"
         }
         params = {
             "q": query,
