@@ -9,7 +9,7 @@
 
 <!-- Logo: Replace with your own logo -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/kheiden-com/ai-stack/static/logo.jpg" alt="Project Logo" width="150">
+  <img src="https://raw.githubusercontent.com/kheiden-com/ai-stack/main/static/logo.jpg" alt="Project Logo" width="150">
   🤖
 </p>
 
