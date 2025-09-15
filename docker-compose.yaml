@@ -45,19 +45,35 @@ services:
           sleep 1
         done
         echo "Ollama server started."
-        
+
+        # Pull models from models.txt
+        if [ -f /etc/ollama/models.txt ]; then
+          echo "Pulling models from /etc/ollama/models.txt..."
+          while IFS= read -r model || [ -n "$model" ]; do
+            if [ -n "$model" ] && ! echo "$model" | grep -q "^#"; then
+              echo "Pulling model: $model"
+              ollama pull "$model"
+            fi
+          done < /etc/ollama/models.txt
+          echo "Finished pulling models."
+        else
+          echo "/etc/ollama/models.txt not found, skipping model pull."
+        fi
+
+        # Special handling for snowflake-arctic-embed2
+        echo "Configuring snowflake-arctic-embed2..."
         ollama pull snowflake-arctic-embed2:latest
         ollama show --modelfile snowflake-arctic-embed2:latest > Modelfile
         echo 'PARAMETER num_ctx 8192' >> Modelfile
         ollama create snowflake-arctic-embed2:latest-8192 -f Modelfile
         
-        ollama pull ${DEFAULT_MODEL}
         echo "Initialization complete. Keeping container running."
         wait
     env_file:
       - .env
     volumes:
       - "ollama:/root/.ollama"
+      - ./ollama/models.txt:/etc/ollama/models.txt:ro
     ports:
       - 11434:11434
   
