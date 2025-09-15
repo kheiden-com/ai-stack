@@ -15,6 +15,17 @@
 
 A powerful, self-hosted, and customizable AI stack that runs locally on your machine. This project bundles a suite of best-in-class open-source tools to provide a complete environment for local AI development, experimentation, and workflow automation.
 
+## 📚 Stack Components
+
+This stack uses a combination of pre-built images from Docker Hub and custom-built images.
+
+*   **OpenWebUI**: `kheidencom/openwebui:latest` - The primary user interface for chatting with LLMs.
+*   **Ollama**: A custom image that dynamically pulls models listed in `ollama/models.txt`.
+*   **n8n**: A custom image that comes pre-loaded with example workflows.
+*   **Qdrant**: `qdrant/qdrant` - The official image for the vector database.
+*   **PhotoPrism**: `photoprism/photoprism:latest` - The official image for photo management.
+*   **MariaDB**: `mariadb:11.4` - The database used by PhotoPrism.
+
 ## ✨ Features
 
 *   **Popular Open Source AI Software**: OpenWebUI, n8n, Photoprism, Ollama, Qdrant, and MariaDB.
@@ -25,6 +36,32 @@ A powerful, self-hosted, and customizable AI stack that runs locally on your mac
 *   **Workflow Automation**: Includes **n8n** with a pre-configured "Text Summarization" workflow to demonstrate how to integrate AI into your automated tasks.
 *   **Vector Database**: Comes with **Qdrant** for all your Retrieval-Augmented Generation (RAG) and semantic search needs.
 *   **Photo Management**: Includes **PhotoPrism**, a comprehensive tool for managing, organizing, and sharing your photo library.
+
+
+## 🚀 Getting Started
+
+Getting the stack running is as simple as running one command.
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/kheiden-com/ai-stack.git
+    cd ai-stack
+    ```
+
+2.  **Run the setup script:**
+
+    *   For **Linux or macOS**:
+        ```bash
+        ./setup.sh
+        ```
+    *   For **Windows** (in a Powershell terminal):
+        ```powershell
+        ./setup.ps1
+        ```
+
+Note: You may want to update the environment variables in the .env file prior to creating the stack. If you do not have a .env file in your directory before running the setup script, one will be created from the .env.template file.
+
+That's it! The script will check for prerequisites, prepare the necessary configuration files, and launch all the services. It may take a while on the first run as Docker images are downloaded and built.
 
 ## 🏗️ Architecture
 
@@ -66,42 +103,6 @@ graph TD
 
     PhotoPrism --> MariaDB
 ```
-
-## 🚀 Getting Started
-
-Getting the stack running is as simple as running one command.
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/kheiden-com/ai-stack.git
-    cd ai-stack
-    ```
-
-2.  **Run the setup script:**
-
-    *   For **Linux or macOS**:
-        ```bash
-        ./setup.sh
-        ```
-    *   For **Windows** (in a Powershell terminal):
-        ```powershell
-        ./setup.ps1
-        ```
-
-Note: You may want to update the environment variables in the .env file prior to creating the stack. If you do not have a .env file in your directory before running the setup script, one will be created from the .env.template file.
-
-That's it! The script will check for prerequisites, prepare the necessary configuration files, and launch all the services. It may take a while on the first run as Docker images are downloaded and built.
-
-## 📚 Stack Components
-
-This stack uses a combination of pre-built images from Docker Hub and custom-built images.
-
-*   **OpenWebUI**: `kheidencom/openwebui:latest` - The primary user interface for chatting with LLMs.
-*   **Ollama**: A custom image that dynamically pulls models listed in `ollama/models.txt`.
-*   **n8n**: A custom image that comes pre-loaded with example workflows.
-*   **Qdrant**: `qdrant/qdrant` - The official image for the vector database.
-*   **PhotoPrism**: `photoprism/photoprism:latest` - The official image for photo management.
-*   **MariaDB**: `mariadb:11.4` - The database used by PhotoPrism.
 
 ## 🔧 Advanced Usage
 
