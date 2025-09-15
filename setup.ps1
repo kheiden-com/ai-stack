@@ -61,10 +61,17 @@ Log-Info "Checking for Nvidia GPU support..."
 $composeFile = "docker-compose-cpu.yaml" # Default to CPU
 try {
     # Attempt to run a container that requires a GPU.
-    # This is a reliable way to check if the Docker runtime is configured for GPU passthrough.
-    docker run --rm --gpus all nvidia/cuda:11.0.3-base-ubuntu20.04 nvidia-smi | Out-Null
-    Log-Info "Nvidia GPU support detected. Using GPU configuration."
-    $composeFile = "docker-compose-gpu.yaml"
+    # We suppress command output and check the exit code to determine success.
+    # This try/catch block will handle terminating errors from docker.
+    docker run --rm --gpus all nvidia/cuda:11.0.3-base-ubuntu20.04 nvidia-smi 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        Log-Info "Nvidia GPU support detected. Using GPU configuration."
+        $composeFile = "docker-compose-gpu.yaml"
+    } else {
+        # If the command returns a non-zero exit code without a terminating error,
+        # we manually trigger the catch block to ensure we fall back to CPU.
+        throw "GPU check command failed."
+    }
 } catch {
     Log-Warn "Nvidia GPU support not detected or Docker is not configured correctly for GPU passthrough."
     Log-Warn "Falling back to CPU-only configuration. Note: Performance for LLM tasks will be significantly reduced."
