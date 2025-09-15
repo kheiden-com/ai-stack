@@ -158,4 +158,4 @@ Please make sure your code is well-documented and follows the existing style.
 
 ## 🔮 Future Updates
 
-*   TODO: Acquire X free ports on host machine, create port variables for each, configure each container with environment variables which reference these available ports.
+*   TODO: Add more configuration to the setup so the software is more closely integrated.
