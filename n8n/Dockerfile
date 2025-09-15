@@ -16,4 +16,4 @@ RUN mkdir -p /home/node/.n8n && chown node:node /home/node/.n8n
 USER node
 
 # Copy the pre-configured workflow(s) into the user's n8n directory
-COPY workflows/ /home/node/.n8n/workflows/
+COPY /n8n/workflows/ /home/node/.n8n/workflows/
