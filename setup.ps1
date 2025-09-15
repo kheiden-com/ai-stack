@@ -56,18 +56,32 @@ if (-not (Test-Path -Path $envFile)) {
     Log-Info ".env file already exists. Skipping creation."
 }
 
-# --- 3. Build and Launch the Stack ---
-Log-Info "Building and launching the Docker stack..."
+# --- 3. GPU Support Check ---
+Log-Info "Checking for Nvidia GPU support..."
+$composeFile = "docker-compose-cpu.yaml" # Default to CPU
+try {
+    # Attempt to run a container that requires a GPU.
+    # This is a reliable way to check if the Docker runtime is configured for GPU passthrough.
+    docker run --rm --gpus all nvidia/cuda:11.0.3-base-ubuntu20.04 nvidia-smi | Out-Null
+    Log-Info "Nvidia GPU support detected. Using GPU configuration."
+    $composeFile = "docker-compose-gpu.yaml"
+} catch {
+    Log-Warn "Nvidia GPU support not detected or Docker is not configured correctly for GPU passthrough."
+    Log-Warn "Falling back to CPU-only configuration. Note: Performance for LLM tasks will be significantly reduced."
+}
+
+# --- 4. Build and Launch the Stack ---
+Log-Info "Building and launching the Docker stack using '$composeFile'..."
 Log-Info "This might take a while, especially on the first run, as images need to be downloaded and built."
 
 # The compose command needs to be invoked carefully if it contains spaces
 try {
-    Invoke-Expression "$composeCmd up --build -d"
+    Invoke-Expression "$composeCmd -f $composeFile up --build -d"
 } catch {
     Log-Error "Failed to start the Docker stack. Please check the output above for errors. Press any key to exit."
 }
 
-Log-Info "Docker stack has been started successfully!" -ForegroundColor Green
+Log-Info "Docker stack has been started successfully!"
 Log-Info "It may take a few minutes for all services to become fully available."
-Log-Info "You can check the status of the services by running: '$composeCmd ps'"
-Log-Info "To view logs, run: '$composeCmd logs -f'"
+Log-Info "You can check the status of the services by running: '$composeCmd -f $composeFile ps'"
+Log-Info "To view logs, run: '$composeCmd -f $composeFile logs -f'"
