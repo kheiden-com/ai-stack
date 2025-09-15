@@ -1,4 +1,6 @@
 #!/bin/bash
+# WARNING: This code was AI generated and has not been tested. Use at your own risk.
+# Pull Requests are welcome!
 
 set -e # Exit immediately if a command exits with a non-zero status.
 
@@ -48,15 +50,29 @@ else
     log ".env file already exists. Skipping creation."
 fi
 
-# --- 3. Build and Launch the Stack ---
-log "Building and launching the Docker stack..."
+# --- 3. GPU Support Check ---
+log "Checking for Nvidia GPU support..."
+COMPOSE_FILE="docker-compose-cpu.yaml" # Default to CPU
+
+# Attempt to run nvidia-smi in a container. If it succeeds, a GPU is available.
+# The 'if' statement handles the command's exit code without exiting the script.
+if docker run --rm --gpus all nvidia/cuda:11.0.3-base-ubuntu20.04 nvidia-smi &> /dev/null; then
+    log "Nvidia GPU support detected. Using GPU configuration."
+    COMPOSE_FILE="docker-compose-gpu.yaml"
+else
+    warn "Nvidia GPU support not detected or Docker is not configured correctly for GPU passthrough."
+    warn "Falling back to CPU-only configuration. Note: Performance for LLM tasks will be significantly reduced."
+fi
+
+# --- 4. Build and Launch the Stack ---
+log "Building and launching the Docker stack using '$COMPOSE_FILE'..."
 log "This might take a while, especially on the first run, as images need to be downloaded and built."
 
 # Split the compose command to handle the space in "docker compose"
 CMD_PARTS=($COMPOSE_CMD)
-"${CMD_PARTS[@]}" up --build -d
+"${CMD_PARTS[@]}" -f "$COMPOSE_FILE" up --build -d
 
 log "Docker stack has been started successfully!"
 log "It may take a few minutes for all services to become fully available."
-log "You can check the status of the services by running: '$COMPOSE_CMD ps'"
-log "To view logs, run: '$COMPOSE_CMD logs -f'"
+log "You can check the status of the services by running: '$COMPOSE_CMD -f $COMPOSE_FILE ps'"
+log "To view logs, run: '$COMPOSE_CMD -f $COMPOSE_FILE logs -f'"
